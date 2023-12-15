@@ -2,35 +2,36 @@
 # этап 1
 # импорт метеоданных в базу
 
-Pulling = TRUE # вытяжные термометры
-Savinov = TRUE # коленчатые термометры Савинова
+# Какой массив данных импортируем в базу
+Pulling = TRUE # вытяжные термометры 
+Savinov = FALSE # коленчатые термометры Савинова
 
 ##### -------- Soil Temperature -------
-setwd('/media/carabus/CARABUS20162/projects/EW_SDM/predictors/meteo/')
+# задаём путь к папке проекта
+setwd('/media/carabus/Enterprise/EW_SDM/')
 library(DBI)
 library(stringr)
 
-connection <- dbConnect(RSQLite::SQLite(), "databases/soil_climate.sqlite")
+# подключение к базе, если файла нет - автоматически создаётся пустой
+connection <- dbConnect(RSQLite::SQLite(), "predictors/meteo/databases/soil_climate.sqlite")
 
-# создаём структуру
+# создаём структуру - таблица для импотра
 crtable = 'CREATE TABLE IF NOT EXISTS soil_temperature (ids integer PRIMARY KEY AUTOINCREMENT,
           station_id integer, date date, depth smallint, measure_type varchar, 
           t decimal(3,1), quality smallint);'
 dbExecute(connection, crtable)
 
-# учимся работать с сессией для ускорения процесса
-# удаляем недоимпортированный файл, далее с него начинаем
+# удаляем недоимпортированный файл, если импорт прервался, далее с него начинаем
 # dbBegin(connection) # начало сессии
 # del = 'DELETE FROM soil_temperature WHERE station_id = 22471'
 # dbExecute(connection, del)
-# dbCommit(connection)
+# dbCommit(connection) # запись изменений в базу
 
 # ДАННЫЕ С ВЫТЯЖНЫХ ТЕРМОМЕТРОВ
 if (Pulling) {
-  soiltfiles = list.files('data/Soil_Temperature/raw/')
+  soiltfiles = list.files('predictors/meteo/raw/Tpg/') # директория с первичными данными
   nfiles = length(soiltfiles)
-  # start = match(22471, as.integer(substr(soiltfiles,4,8)))
-  
+  start = match(22471, as.integer(substr(soiltfiles,4,8))) # если продолжаем импорт, меняем файл
   cat(paste0('Всего ',nfiles,' метеостанций с вытяжными термометрами'))
   
   fieldwidth = c(5,5,3,3,5,2,5,2,5,2,5,2,5,2,5,2,5,2,5,2,5,2,5,2,5,2,5,2)
@@ -39,14 +40,14 @@ if (Pulling) {
              'q120','t160','q160','t240','q240','t320','q320')
   depthes = c(2,5,10,15,20,40,60,80,120,160,240,320)
   qs = c(6,8,10,12,14,16,18,20,22,24,26,28)
-  workdir = 'data/Soil_Temperature/raw/'
-  nvalues = 12 # число глубин в дате
+  workdir = 'predictors/meteo/raw/Tpg/'
+  nvalues = 12 # число глубин
   deviceType = 'p'
 }
 
 if (Savinov) {
   # ДАННЫЕ С ТЕРМОМЕТРОВ САВИНОВА
-  soiltfiles = list.files('data/Soil_Temperature_Savinov/raw/')
+  soiltfiles = list.files('predictors/meteo/raw/Tpgks/')
   nfiles = length(soiltfiles)
   cat(paste0('Всего ',nfiles,' метеостанций с термометрами Савинова'))
   
@@ -58,7 +59,7 @@ if (Savinov) {
   depthes = c(5,10,15,20)
   qs = c(6,8,10,12)
   start = match(22217, as.integer(substr(soiltfiles,4,8))) # начинаем импорт с первого файла
-  workdir = 'data/Soil_Temperature_Savinov/raw/'
+  workdir = 'predictors/meteo/raw/Tpgks/'
   nvalues = 4
   deviceType = 's'
 }
@@ -66,13 +67,11 @@ if (Savinov) {
 
 # импорт данных в базу (файлов)
 for (i in start : nfiles) {
-  # i = 12
+
   rawfile = soiltfiles[i]
-  # rawfile = soiltfiles[12]
   rawt = read.fwf(paste0(workdir,rawfile),fieldwidth) # размечаем файл в Data Frame
   if (Pulling) rawt = rawt[-1,] # для вытяжных термометров первую строку убираем
-  # head(rawt)
-  
+
   # всё в целочисленные значения
   for (j in 1 : ncol(rawt)) rawt[,j] = as.integer(rawt[,j])
   colnames(rawt) = cnames
@@ -105,14 +104,14 @@ for (i in start : nfiles) {
 
 ###### ----- Snow Cover ------
 # МОЩНОСТЬ СНЕЖНОГО ПОКРОВА
-connection <- dbConnect(RSQLite::SQLite(), "databases/soil_snow.sqlite")
+connection <- dbConnect(RSQLite::SQLite(), "predictors/meteo/databases/soil_snow.sqlite")
 # создаём структуру
 crtable = 'CREATE TABLE IF NOT EXISTS snow_cover (ids integer PRIMARY KEY AUTOINCREMENT,
           station_id integer, date date, depth smallint, degree smallint, 
           q1 smallint, q2 smallint, q3 smallint);'
 dbExecute(connection, crtable)
 
-snowfiles = list.files('data/Snow_Cover/raw/')
+snowfiles = list.files('predictors/meteo/raw/Snow/')
 nfiles = length(snowfiles)
 cat(paste0('Всего ',nfiles,' метеостанций с мощностью снежного покрова'))
 
@@ -122,11 +121,10 @@ cnames = c('station_code','year','month','day','depth','degree','q1','q2','q3')
 
 # start = 1
 start = match(30565, as.integer(substr(snowfiles,4,8))) # начинаем импорт с первого файла
-workdir = 'data/Snow_Cover/raw/'
+workdir = 'predictors/meteo/raw/Snow/'
 
 # Заносим данные в базу
 for (i in start : nfiles) {
-  #  i = 1
   rawfile = snowfiles[i]
   rawt = read.fwf(paste0(workdir,rawfile),fieldwidth) # размечаем файл в Data Frame
 
@@ -160,7 +158,7 @@ for (i in start : nfiles) {
 
 ##### ---- SNOW ROUTES -----
 # маршрутные снеговые съемки
-connection <- dbConnect(RSQLite::SQLite(), "databases/soil_snow.sqlite")
+connection <- dbConnect(RSQLite::SQLite(), "predictors/meteo/databases/soil_snow.sqlite")
 # новая таблица в ту же базу
 
 # создаём структуру
@@ -174,7 +172,7 @@ crtable = 'CREATE TABLE IF NOT EXISTS snow_route (ids integer PRIMARY KEY AUTOIN
           snow_cover_pattern smallint, snow_pattern smallint);'
 dbExecute(connection, crtable)
 
-snowfiles = list.files('data/Snow_Routes/raw/')
+snowfiles = list.files('predictors/meteo/raw/SnMar/')
 nfiles = length(snowfiles)
 cat(paste0('Всего ',nfiles,' метеостанций с маршрутными съемками снежного покрова'))
 
@@ -184,17 +182,13 @@ cnames = c('stationCode','year','month','routeType','day','degreeCover','degreeR
            'crustRoute','depth','depthMax','depthMin','density','cresutDepth',
            'wateredDepth','waterDepth','waterVolSnow','waterVolTotal',
            'snowCoverPattern','snowPattern')
-# length(cnames)
-# length(fieldwidth)
 
-# start = match(22217, as.integer(substr(soiltfiles,4,8))) # начинаем импорт с первого файла
-workdir = 'data/Snow_Routes/raw/'
-
-start = 1
+start = match(22217, as.integer(substr(soiltfiles,4,8))) # начинаем импорт с первого файла
+workdir = 'predictors/meteo/raw/SnMar/'
 
 # Заносим данные в базу
 for (i in start : nfiles) { # очередной файлы
-  # i = 1
+ 
   rawfile = snowfiles[i]
   rawt = read.fwf(paste0(workdir,rawfile),fieldwidth) # размечаем файл в Data Frame
   
@@ -225,7 +219,7 @@ for (i in start : nfiles) { # очередной файлы
     rawt[is.na(rawt[,9]),9] = 9999
     
     # для проверки
-    # write.table(rawt,'data/Snow_Routes/raw/21802.csv', sep = '\t')
+    # write.table(rawt,'predictors/meteo/raw/21802.csv', sep = '\t')
 
     if (depth != 9999) {
       ins = paste0('INSERT INTO snow_route (station_id, date, route_type, degree_cover,
