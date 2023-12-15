@@ -93,7 +93,7 @@ setdiff(soilT,soilTS) # разница в 55 станций
 setdiff(soilTS,soilT) # разница в 106 станций
 
 # список метеостанций по ВНИИГМИ-МЦД
-write.csv(stationsVniigmi,'weather_stations/stations_vniigmi-mcd.csv')
+# write.csv(stationsVniigmi,'weather_stations/stations_vniigmi-mcd.csv')
 
 
 # территория интереса
