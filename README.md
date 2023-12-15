@@ -28,7 +28,7 @@
 3. ***soil_climate_processing.R*** - рассчёт среднемесячных температур и оценка качества данных
    используемые пакеты: DBI, lubridate
 
-4. ***soil_climate_layers.R*** - генерация растровых слоёв почвенного климата<br>
+4. ***soil_climate_layers.R*** - генерация растровых слоёв почвенного климата<br><br>
    используемые пакеты: DBI, sf, geodata, ggplot2, raster, fields
 
 
