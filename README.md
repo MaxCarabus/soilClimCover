@@ -19,16 +19,18 @@
    в том числе визуализация данных<br>
    используемые пакеты: sf, stringr, ggplot2<br>
    Схема расположения метеостанций на территории интереса и окресностях<br>
-   ![СХЕМА](https://github.com/MaxCarabus/soilClimCover/blob/main/weather_stations_aoi.png)
+   ![СХЕМА](https://github.com/MaxCarabus/soilClimCover/blob/main/weather_stations_aoi.png)<br>
+   ***aoi_albers.kml*** - территория интереса в равновеликой конической проекции альберса<br>
+   ***aoi_dd.kml*** - территория интереса в десятичных градусах
 
-4. soil_climate_processing.R - рассчёт среднемесячных температур и оценка качества данных
+
+4. ***soil_climate_processing.R*** - рассчёт среднемесячных температур и оценка качества данных
    используемые пакеты: DBI, lubridate
 
-5. soil_climate_layers.R - генерация растровых слоёв почвенного климата
+5. ***soil_climate_layers.R*** - генерация растровых слоёв почвенного климата
    используемые пакеты: DBI, sf, geodata, ggplot2
 
 
-aoi_albers.kml - территория интереса в равновеликой конической проекции альберса<br>aoi_dd.kml - территория интереса в десятичных градусах
 
 
 3. soil_climate_overview.R - сводка по метеостациям с данными почвенного климата, импортированными в базу
