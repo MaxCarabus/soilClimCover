@@ -15,9 +15,11 @@
    ***soil_climate_temperature.sqlite*** - температура почвы на разных глубинах (массивы данных **Tpg** и **Tpgks**)<br>
    ***soil_climate_snow.sqlite*** - снежный покров (массивы данных **Snow** и **SnMar**)
 
-3. soil_climate_overview.R - сводка по метеостациям с данными почвенного климата, импортированными в базу
+2. ***soil_climate_overview.R*** - сводка по метеостациям с данными почвенного климата, импортированными в базу
    в том числе визуализация данных 
    используемые пакеты: sf, stringr, ggplot2
+   Схема расположения метеостанций на территории интереса и окресностях
+   ![СХЕМА](https://github.com/MaxCarabus/soilClimCover/blob/main/weather_stations_aoi.png)
 
 4. soil_climate_processing.R - рассчёт среднемесячных температур и оценка качества данных
    используемые пакеты: DBI, lubridate
